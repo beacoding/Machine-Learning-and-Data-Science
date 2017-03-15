@@ -1,0 +1,106 @@
+\documentclass{article}
+
+\usepackage{fullpage}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{parskip}
+\usepackage{amssymb}
+\usepackage{listings} % For displaying code
+
+% Colors
+\definecolor{blu}{rgb}{0,0,1}
+\def\blu#1{{\color{blu}#1}}
+\definecolor{gre}{rgb}{0,.5,0}
+\def\gre#1{{\color{gre}#1}}
+\definecolor{red}{rgb}{1,0,0}
+\def\red#1{{\color{red}#1}}
+\def\norm#1{\|#1\|}
+\newcommand{\argmin}[1]{\mathop{\hbox{argmin}}_{#1}}
+\newcommand{\argmax}[1]{\mathop{\hbox{argmax}}_{#1}}
+\def\R{\mathbb{R}}
+\newcommand{\fig}[2]{\includegraphics[width=#1\textwidth]{#2}}
+\newcommand{\centerfig}[2]{\begin{center}\includegraphics[width=#1\textwidth]{#2}\end{center}}
+\def\items#1{\begin{itemize}#1\end{itemize}}
+\def\enum#1{\begin{enumerate}#1\end{enumerate}}
+\def\argmax{\mathop{\rm arg\,max}}
+\def\argmin{\mathop{\rm arg\,min}}
+
+
+\begin{document}
+
+\title{CPSC 340 Assignment 1 (due 2017-01-22 at 11:59pm)}
+\author{Data Exploration, Decision Trees, Training and Testing, Naive Bayes}
+\date{}
+\maketitle
+
+
+
+
+
+
+
+\gre{2.3 The cost at each depth is O(dnlogn) as sorting costs O(nlogn) per feature.We look at the examples at each depth.To go through a depth of m we have total cost of O(mndlogn).}
+
+
+
+
+\gre{3.1 Test error in green and training error in blue both goes down. The training error goes down to 0 but test error does not keep going down after depth 10.}
+
+
+\gre{3.2 We will pick a depth of 3 if validation error is minimized.Yes the answer changes to depth 6 if we switch the training and validation set.We can do n-fold cross validation to add more reliability in our result. }
+
+
+\gre{4.1 $P(D=1|T=1)$ = $P(T=1|D=1)$*$P(D=1)$/$P(T=1|D=1)P(D=1) +(T=1|D=1)P(D=0)$}
+\gre{=$(.99*.001)/(.99)(.001)+(.01)(.999)$}
+
+\gre{=$.090$}
+
+\gre{4.2}
+
+\gre{$ p(y = 1)$ =\gre {6/10}}
+
+\gre{ $p(y = 0)$ \gre {1-(6/10) = 4/10}}
+
+\blu{(b) Compute the estimates of the 4 conditional probabilities required by naive Bayes for this example:}
+\items{
+\item $p(x_1 = 1 | y = 1)$ =\gre {3/6}
+\item $p(x_2 = 1 | y = 1)$ =\gre {4/6}
+\item $p(x_1 = 1 | y = 0)$ =\gre {4/4}
+\item $p(x_2 = 1 | y = 0)$ =\gre {1/4}
+}
+
+\blu{(c) Under the naive Bayes model and your estimates of the above probabilities, what is the most likely label for the test example? (Show your work.)}
+
+\gre {If $p(y = 0|x_1 = 1, x_2 = 1) > p(y = 1|x_1 = 1, x_2 = 1)$ then the likely label is 0 otherwise its 1.}
+
+\gre{$p(y = 1|x_1 = 1, x_2 = 1)$}
+
+\gre{$=p(x_1 = 1, x_2 = 1)|p(y=1)$}\red{We do not require the denominator as we only compare the two probabilities }
+
+\gre{$=p(x_1=1|y=1)p(x_2 = 1|y=1)p(y=1)$} \red {Naive Bayes assumption}
+
+\gre{= $3/6*4/6*6/10$}
+
+\gre{= 0.2}
+
+\gre{$p(y = 0|x_1 = 1, x_2 = 1)$}
+
+\gre{$=p(x_1 = 1, x_2 = 1)|p(y=0)$}
+
+\gre{$=p(x_1=1|y=0)p(x_2 = 1|y=0)p(y=0)$}
+
+\gre{= 1 * 1/4 *4/10}
+
+\gre{= 0.1}
+
+\gre{More likely label is 1 as its probability is higher than that of 0} 
+
+\gre {4.3}
+
+\gre{There are 3 for loops : one for d features ,one for T objects and one for k class labels.  All of the loops are doing equal amount of work therefore O(dtk).}
+
+
+\end{document}

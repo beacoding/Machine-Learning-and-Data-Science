@@ -1,0 +1,142 @@
+\documentclass{article}
+
+\usepackage{fullpage}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{parskip}
+\usepackage{amssymb}
+\usepackage{listings} % For displaying code
+
+% Colors
+\definecolor{blu}{rgb}{0,0,1}
+\def\blu#1{{\color{blu}#1}}
+\definecolor{gre}{rgb}{0,.5,0}
+\def\gre#1{{\color{gre}#1}}
+\definecolor{red}{rgb}{1,0,0}
+\def\red#1{{\color{red}#1}}
+\def\norm#1{\|#1\|}
+\newcommand{\argmin}[1]{\mathop{\hbox{argmin}}_{#1}}
+\newcommand{\argmax}[1]{\mathop{\hbox{argmax}}_{#1}}
+\def\R{\mathbb{R}}
+\newcommand{\fig}[2]{\includegraphics[width=#1\textwidth]{#2}}
+\newcommand{\centerfig}[2]{\begin{center}\includegraphics[width=#1\textwidth]{#2}\end{center}}
+\def\items#1{\begin{itemize}#1\end{itemize}}
+\def\enum#1{\begin{enumerate}#1\end{enumerate}}
+\def\argmax{\mathop{\rm arg\,max}}
+\def\argmin{\mathop{\rm arg\,min}}
+
+
+\begin{document}
+
+\title{CPSC 340 Assignment 1 (due 2017-01-22 at 11:59pm)}
+\author{Data Exploration, Decision Trees, Training and Testing, Naive Bayes}
+\date{}
+\maketitle
+\section{Data Exploration}
+\subsection{Summary Statistics}
+\begin{enumerate}
+\item maximum = 4.862, minimum = 0.352, mean = 1.324625, median = 1.159, mode = 0.77
+\item $10\%$ quantile = 0.5019, $25\%$ quantile = 0.718, $50\%$ quantile = 1.159, $75\%$ quantile = 1.81325, $90\%$ quantile = 2.3154
+\item highest mean = WtdILI, lowest mean = Pac, highest variance = Mtn, lowest variance = Pac
+\item highest correlation between MidAtl and ENCentral regions, lowest correlation between Mtn and NE regions
+\item The  mode is not a reliable estimate for the most common value as this is continuous data. It is fairly unlikely that there are duplicate values exact to the $n^{th}$ decimal place. The mode would only be sufficient for categorical data. A more meaningful measurement would be the quantile values. The IQR would  be a good statistic to show where the middle $50\%$ of values lie.
+\end{enumerate}
+\subsection{Data Visualization}
+\begin{enumerate}
+\item Weeks vs. Percentage \begin{center}
+\fig{0.55}{../figs/q1_2_1.png} %
+\end{center}
+\item Boxplot by week \begin{center}
+\fig{0.55}{../figs/q1_2_2.png} %
+\end{center}
+\item Histogram of all values \begin{center}
+\fig{0.55}{../figs/q1_2_3.png} %
+\end{center}
+\item Histogram of each column \begin{center}
+\fig{0.55}{../figs/q1_2_4.png} %
+\end{center}
+\item Scatterplot lowest correlation \begin{center}
+\fig{0.55}{../figs/q1_2_5.png} %
+\end{center}
+\item Scatterplot highest correlation \begin{center}
+\fig{0.55}{../figs/q1_2_6.png} %
+\end{center}
+\end{enumerate}
+
+\section{Decision Trees}
+\subsection{Decision Stump Implementation}
+\url{https://github.ubc.ca/cpsc340/jeanlam_nafis1_hw1/tree/master/code/decision_stump.py} \\
+The updated error is $0.253$
+\subsection{Constructing Decision Trees}
+See \url{https://github.ubc.ca/cpsc340/jeanlam_nafis1_hw1/tree/master/code/simple_decision.py} \\
+The error in the scikit-learn version eventually decreases to 0 due to overfitting. Classification accuracy, however, takes the number of correct predictions divided by the total number of predictions made. However, our classification accuracy does not reach 1, or reversed, our training error does not reach 0. The way that scikit predicts is with splitting until the entropy is equal to 0. This means that all values are definitely YES or definitely NO, resulting in a 0 training error. With our version, at a certain point, any computed errors with the threshold are not any lower than the current classification error where $y != y_mode$. There is no split found that improves the classification error at depth m, without increasing the overall error of the entire tree. 
+\subsection{Cost of Fitting Decision Trees}
+2.3 The cost at each depth is O(dnlogn) as sorting costs O(nlogn) per feature.We look at the examples at each depth.To go through a depth of m we have total cost of O(mndlogn).
+
+\section{Training and Testing}
+\subsection{Training and Testing Error Curves}
+Training error vs. depth of tree \begin{center}
+\fig{0.55}{../figs/3_1.png} %
+\end{center}
+Test error in green and training error in blue both goes down. The training error goes down to 0 but test error does not keep going down after depth 10.
+
+
+\subsection{Validation Set}
+We will pick a depth of 3 if validation error is minimized.Yes the answer changes to depth 6 if we switch the training and validation set.We can do n-fold cross validation to add more reliability in our result.
+
+\section{Naive Bayes}
+\subsection{Bayes rule for drug testing}
+$P(D=1|T=1)$ = $P(T=1|D=1)$*$P(D=1)$/$P(T=1|D=1)P(D=1) +(T=1|D=1)P(D=0)$ \\
+=$(.99*.001)/(.99)(.001)+(.01)(.999)$\\
+=\gre {$.090$}\\
+
+\subsection{Naive Bayes by hand}
+(a)
+\items{
+\item $ p(y = 1)$ = \gre {6/10}
+\item $p(y = 0)$ = {1-(6/10)} = \gre {4/10}
+}
+(b) 
+\items{
+\item $p(x_1 = 1 | y = 1)$ =\gre {3/6}
+\item $p(x_2 = 1 | y = 1)$ =\gre {4/6}
+\item $p(x_1 = 1 | y = 0)$ =\gre {4/4}
+\item $p(x_2 = 1 | y = 0)$ =\gre {1/4}
+}
+
+(c)
+
+If $p(y = 0|x_1 = 1, x_2 = 1) > p(y = 1|x_1 = 1, x_2 = 1)$ then the likely label is 0 otherwise its 1.
+
+\blu {$p(y = 1|x_1 = 1, x_2 = 1)$}
+
+\gre{$=p(x_1 = 1, x_2 = 1)|p(y=1)$}\red{We do not require the denominator as we only compare the two probabilities }
+
+\gre{$=p(x_1=1|y=1)p(x_2 = 1|y=1)p(y=1)$} \red {Naive Bayes assumption}
+
+\gre{= $3/6*4/6*6/10$}
+
+\gre{= 0.2}
+
+\blu{$p(y = 0|x_1 = 1, x_2 = 1)$}
+
+\gre{$=p(x_1 = 1, x_2 = 1)|p(y=0)$}
+
+\gre{$=p(x_1=1|y=0)p(x_2 = 1|y=0)p(y=0)$}
+
+\gre{= 1 * 1/4 *4/10}
+
+\gre{= 0.1}
+
+\gre{More likely label is 1 as its probability is higher than that of 0} 
+\subsection{Naive Bayes Implementation}
+See \url{https://github.ubc.ca/cpsc340/jeanlam_nafis1_hw1/tree/master/code/naive_bayes.py} \\
+The naive bayes error is 0.188, as compared to the decision tree validation error of 0.356
+\subsection{Runtime of Naive Bayes for Discrete Data}
+
+\gre{There are 3 for loops : one for d features ,one for T objects and one for k class labels.  All of the loops are doing equal amount of work therefore O(dtk).}
+ 
+\end{document}
