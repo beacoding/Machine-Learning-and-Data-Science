@@ -1,0 +1,263 @@
+\documentclass{article}
+
+\usepackage{fullpage}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{parskip}
+\usepackage{amssymb}
+\usepackage{listings} % For displaying code
+
+\begin{document}
+
+% Colors
+\definecolor{blu}{rgb}{0,0,1}
+\def\blu#1{{\color{blu}#1}}
+\definecolor{gre}{rgb}{0,.5,0}
+\def\gre#1{{\color{gre}#1}}
+\definecolor{red}{rgb}{1,0,0}
+\def\red#1{{\color{red}#1}}
+\def\norm#1{\|#1\|}
+\newcommand{\argmin}[1]{\mathop{\hbox{argmin}}_{#1}}
+\newcommand{\argmax}[1]{\mathop{\hbox{argmax}}_{#1}}
+\def\R{\mathbb{R}}
+\newcommand{\fig}[2]{\includegraphics[width=#1\textwidth]{#2}}
+\newcommand{\centerfig}[2]{\begin{center}\includegraphics[width=#1\textwidth]{#2}\end{center}}
+\def\items#1{\begin{itemize}#1\end{itemize}}
+\def\enum#1{\begin{enumerate}#1\end{enumerate}}
+\newcommand{\half}{\frac 1 2}
+\def\argmax{\mathop{\rm arg\,max}}
+\def\argmin{\mathop{\rm arg\,min}}
+\def\rubric#1{\gre{Rubric: \{#1\}}}{}
+
+
+\title{CPSC 340 Assignment 4 (due Sunday March 19th at 11:59pm)}
+\author{Linear Models Part 2}
+\date{}
+\maketitle
+
+
+\section*{Instructions}
+\rubric{mechanics:3}
+
+The above points are allocated for following the general homework instructions on GitHub.
+
+As usual, if you're using Python 2:
+\begin{itemize}
+  \item Add \verb|from __future__ import division| to the top of each Python file. 
+  \item Grab the Python 2 compatible data files from the ``home'' repo on GitHub.
+\end{itemize}
+
+
+
+\section{Logistic Regression with Sparse Regularization}
+
+If you run  \verb|python main.py -q 1|, it will:
+\enum{
+\item Load a binary classification dataset containing a training and a validation set.
+\item `Standardize' the columns of $X$ and add a bias variable (in \emph{utils.load\_dataset}).
+\item Apply the same transformation to $Xvalidate$ (in \emph{utils.load\_dataset}).
+\item Fit a logistic regression model.  
+\item Report the number of features selected by the model (number of non-zero regression weights).
+\item Report the error on the validation set.
+}
+Logistic regression does ok on this dataset, 
+but it uses all the features (even though only the prime-numbered features are relevant) 
+and the validation error is above the minimum achievable for this model 
+(which is 1 percent, if you have enough data and know which features are relevant). 
+In this question, you will modify this demo to use different forms of regularization
+ to improve on these aspects.
+
+Note: your results may vary a bit depending on versions of Python and its libraries.
+
+
+\subsection{L2-Regularization}
+\rubric{code:2}
+
+Make a new class, \emph{logRegL2}, that takes an input parameter $\lambda$ and fits a logistic regression model with L2-regularization. Specifically, while \emph{logReg} computes $w$ by minimizing
+\[
+f(w) = \sum_{i=1}^n \log(1+\exp(-y_iw^Tx_i)),
+\]
+your new function \emph{logRegL2} should compute $w$ by minimizing
+\[
+f(w) = \sum_{i=1}^n \left[\log(1+\exp(-y_iw^Tx_i))\right] + \frac{\lambda}{2}\norm{w}^2.
+\]
+\blu{Hand in your updated code. Using this new code, report the number of non-zeroes and the validation error with $\lambda = 1$.}
+
+Note: as you may have noticed, \texttt{lambda} is a special keyword in Python and therefore we can't use it as a variable name. 
+As an alternative I humbly suggest \texttt{lammy}, which is what my neice calls her stuffed animal toy lamb.
+However, you are free to deviate from this suggestion. 
+
+
+\subsection{L1-Regularization}
+\rubric{code:3}
+
+Make a new class, \emph{logRegL1}, that takes an input parameter $\lambda$ and fits a logistic regression model with L1-regularization,
+\[
+f(w) = \sum_{i=1}^n \left[\log(1+\exp(-y_iw^Tx_i))\right] + \lambda\norm{w}_1.
+\]
+\blu{Hand in your updated code. Using this new code, report the number of non-zeroes and the validation error with $\lambda = 1$.}
+
+
+You should use the function \emph{minimizers.findMinL1}, which implements a 
+proximal-gradient method to minimize the sum of a differentiable function $g$ and $\lambda\norm{w}_1$,
+\[
+f(w) = g(w) + \lambda \norm{w}_1.
+\]
+This function has a similar interface to \emph{findMin}, except that you (a) 
+only provide the code to compute the function/gradient of the differentiable 
+part $g$ and (b) need to provide the value $\lambda$. 
+
+
+\subsection{L0-Regularization}
+\rubric{code:4}
+
+The class \emph{logRegL0} contains part of the code needed to implement the \emph{forward selection} algorithm, 
+which approximates the solution with L0-regularization,
+\[
+f(w) =  \sum_{i=1}^n \left[\log(1+\exp(-y_iw^Tx_i))\right] + \lambda\norm{w}_0.
+\]
+The \texttt{for} loop in this function is missing the part where we fit the model using the subset \emph{selected\_new}, 
+then compute the score and updates the \emph{minLoss/bestFeature}. 
+Modify the \texttt{for} loop in this code so that it fits the model using only 
+the features \emph{selected\_new}, computes the score above using these features, 
+and updates the \emph{minLoss/bestFeature} variables.
+\blu{Hand in your updated code. Using this new code, 
+report the number of non-zeroes and the validation error with $\lambda = 1$.}
+
+Note that the code differs a bit from what we discussed in class, 
+since we assume that the first feature is the bias variable and assume that the 
+bias variable is always included. Also, note that for this particular case using 
+the L0-norm with $\lambda$ is equivalent to what is known as the Bayesian 
+information criterion (BIC) for variable selection.
+
+
+\subsection{Discussion}
+\rubric{reasoning:2}
+
+In a short paragraph, briefly discuss your results from the above. How do the 
+different forms of regularization compare with each other? 
+Can you provide some intuition for your results? No need to write a long essay, please! 
+
+
+\section{Convex Functions and MLE/MAP Loss Functions}
+
+This question gets you to explore two important concepts related to loss functions: the \emph{convexity} of loss functions (since convex loss functions can be minimized with gradient descent) and the \emph{probabilistic interpretation} of loss functions (since this allows us to define new loss functions when we encounter weird new situations.
+
+
+\subsection{Showing Convexity from Definitions}
+\rubric{reasoning:5}
+
+\blu{Show that the following functions are convex}:
+\begin{center}
+\begin{tabular}{lll}
+1. Quadratic & $f(w) = aw^2 + bw$ & $w \in \R, a > 0$ \\
+2. Negative logarithm & $f(w) = -\log(aw) $ & $w > 0$\\
+3. Regularized regression (arbitrary norms) &  $f(w) = \norm{Xw - y}_p + \lambda\norm{w}_q$ & $p \geq 1, q \geq 1, \lambda \geq 0$\\
+4. Logistic regression & $f(w) = \sum_{i=1}^n \log(1+\exp(-y_iw^Tx_i)) $& $w \in \R^d$\\
+5. Support vector regression & $f(w) = \sum_{i=1}^N\max\{0, |w^Tx_i - y_i| - \epsilon\} + \frac{\lambda}{2}\norm{w}_2^2$ & $\lambda \geq 0$\\
+\end{tabular}
+\end{center}
+
+Hint: for the first two you can use the second-derivative test. For the last 3 you'll have to use some of the results in class regarding how combining convex functions  can yield convex functions (see Lecture 17).
+
+\subsection{MAP Estimation}
+\rubric{reasoning:5}
+
+In class, we considered MAP estimation in a regression model where we assumed that:
+\items{
+\item The likelihood $p(y_i | x_i, w)$ is a normal distribution with a mean of $w^Tx_i$ and a variance of $1$.
+\item The prior for each variable $j$, $p(w_j)$, is a normal distribution with a mean of zero and a variance of $\lambda^{-1}$.
+}
+Under these assumptions, we showed that this leads to the standard L2-regularized least squares objective function:
+\[
+f(w) = \frac{1}{2}\norm{Xw - y}^2 + \frac \lambda 2 \norm{w}^2.
+\]
+\blu{For each of the alternate assumptions below, show how the loss function would change} (simplifying as much as possible):
+\enum{
+\item We use a zero-mean Laplace prior for each variable with a scale parameter of $\lambda^{-1}$, so that 
+\[
+p(w_j) = \frac{\lambda}{2}\exp(-\lambda|w_j|).
+\]
+\item We use a Laplace likelihood with a mean of $w^Tx_i$ and a scale of $1$, so that 
+\[
+p(y_i | x_i, w) = \frac 1 2 \exp(-|w^Tx_i - y_i|).
+\]
+\item We use a Gaussian likelihood where each datapoint where the variance is $\sigma^2$ instead of $1$,
+\[
+p(y_i | x_i,w) = \frac{1}{\sqrt{2\sigma^2\pi}}\exp\left(-\frac{(w^Tx_i - y_i)^2}{2\sigma^2}\right).
+\]
+\item We use a Gaussian likelihood where each datapoint has its own variance $\sigma_i^2$,
+\[
+p(y_i | x_i,w) = \frac{1}{\sqrt{2\sigma_i^2\pi}}\exp\left(-\frac{(w^Tx_i - y_i)^2}{2\sigma_i^2}\right).
+\]
+\item We use a (very robust) student $t$ likelihood with a mean of $w^Tx_i$ and a degree of freedom of $\nu$,
+\[
+p(y_i | x_i, w) = \frac{\Gamma\left(\frac{\nu + 1}{2}\right)}{\sqrt{\nu\pi}\Gamma\left(\frac \nu 2\right)}\left(1 + \frac{(w^Tx_i - y_i)^2}{\nu}\right)^{-\frac{\nu+1}{2}},
+\] 
+where $\Gamma$ is the ``gamma" function (which is always non-negative).
+}
+\blu{Why is loss coming from the student $t$ distribution ``very robust"?}
+
+
+\section{Multi-Class Logistic}
+
+If you run \verb|python main.py -q 3| the code loads a multi-class classification dataset with $y_i \in \{0,1,2,3,4\}$ and fits a `one-vs-all' classification model using least squares, then reports the validation error and shows a plot of the data/classifier. The performance on the validation set is ok, but could be much better. For example, this classifier never even predicts that examples will be in classes 1 or 5.
+
+
+\subsection{One-vs-all Logistic Regression}
+\rubric{code:2}
+
+Using the squared error on this problem hurts performance because it has `bad errors' (the model gets penalized if it classifies examples `too correctly'). 
+Write a new class, \emph{logLinearClassifier}, that replaces the squared loss in the one-vs-all model with the logistic loss. \blu{Hand in the code and report the validation error}.
+
+
+\subsection{Softmax Classification}
+\rubric{reasoning:2}
+
+Using a one-vs-all classifier hurts performance because the classifiers are fit independently, so there is no attempt to calibrate the columns of the matrix $W$. An alternative to this independent model is to use the softmax probability,
+\[
+p(y_i | W, x_i) = \frac{\exp(w_{y_i}^Tx_i)}{\sum_{c=1}^k\exp(w_c^Tx_i)}.
+\]
+Here $c$ is a possible label and $w_{c'}$ is column $c'$ of $W$. Similarly, $y_i$ is the training label, $w_{y_i}$ is column $y_i$ of $W$, and in this setting we are assuming a discrete label $y_i \in \{1,2,3\}$. Before we move on to implementing the softmax classifier, let's do a simple example:
+
+Consider the dataset below, which has $10$ training examples and $2$ features:
+\[
+X = \begin{bmatrix}0 & 1\\1 & 0\\ 1 & 0\\ 1 & 1\\ 1 & 1\\ 0 & 0\\  1 & 0\\  1 & 0\\  1 & 1\\  1 &0\end{bmatrix}, \quad y = \begin{bmatrix}1\\1\\1\\2\\2\\2\\3\\3\\3\\3\end{bmatrix}.
+\]
+Suppose that you want to classify the following test example:
+\[
+\hat{x} = \begin{bmatrix}1 & 1\end{bmatrix}.
+\]
+Suppose we fit a multi-class linear classifier using the softmax loss, and we obtain the following weight matrix:
+\[
+W = 
+\begin{bmatrix}
++2 & +2 & +3\\
+-1 & +2 & -1\\
+\end{bmatrix}
+\]
+\blu{Under this model, what class label would we assign to the test example? (Show your work.)}
+
+
+\subsection{Softmax Loss}
+\rubric{reasoning:3}
+
+The loss function corresponding to the negative logarithm of the softmax probability is given by
+\[
+f(W) = \sum_{i=1}^n \left[-w_{y_i}^Tx_i + \log\left(\sum_{c' = 1}^k \exp(w_{c'}^Tx_i)\right)\right].
+\]
+Derive the derivative of this loss function with respect to a particular element $W_{jc}$. Try to simplify the derivative as much as possible (but you can express the result in summation notation).
+
+Hint: for the gradient you can use $x_{ij}$ to refer to element $j$ of example $i$. You can use an `indicator' function, $I(y_i = c)$, which is $1$ when $y_i = c$ and is $0$ otherwise. Note that you can use the definition of the softmax probability to simplify the derivative.
+
+\subsection{Softmax Classifier}
+\rubric{code:3}
+
+Make a new class, \emph{softmaxClassifier}, which fits $W$ using the softmax loss from the previous section  instead of fitting $k$ independent classifiers. \blu{Hand in the code and report the validation error}.
+
+Hint: you may want to use \verb|utils.check_gradient| to check that your gradient code is correct.
+
+\end{document}
