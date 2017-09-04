@@ -1,4 +1,3 @@
-#jeanlam_nafis1_hw4
 
 CPSC 340 hw4 for jeanlam_nafis1.
 
